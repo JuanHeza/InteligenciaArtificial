@@ -1,0 +1,151 @@
+http.HandleFunc("/", Home)
+http.HandleFunc("/Gen", Mapping)
+
+La direccion/link a la que esta relacionada cada funcion 
+localhots:8080/Gen realiza la funcion Mapping
+
+MyRadioButtons & MyDropDown son las variables para el formulario del html en localhots:8080/
+QX almacena las variables en una estructura
+   	t, err := template.ParseFiles("Data.html")
+       Se abre el html "Data.html"
+    err = t.Execute(w, QX)
+    envia las variables QX al html
+	log.Println("Parsed")
+        se imprime Parsed si todo sale bien / los log estan usados como banderas de control
+
+Mapping()
+    r.ParseForm()
+    NumGet := r.Form.Get("select")
+	Muta := r.Form.Get("Muta")
+        obtiene las variables del formulario anterior y las guarda en NumGen (txt o generar) y Muta (muta o no muta)
+    switch(NumGet)
+        txt:
+            GetData() // lee el archivo "Genetico.txt"
+            scanner := bufio.NewScanner(Lineas)
+            for scanner.Scan() {
+                x = scanner.Text()
+                fila := strings.Fields(x)
+                Data = append(Data, fila)
+            }
+            //scanner almacena todo el archivo, X le cada fila del texto, fila separa el string cada espacio y los guarda en el array Data 
+            regresa Data
+
+        generar:
+            G = r.Form.Get("Cant")
+            obtiene la cantidad de numeros a generar
+            D, err := strconv.Atoi(G)
+            convierte el string G en un int en D
+            log.Println("D Value", D)
+            if D >= 4 {
+                vias = Generator(D)
+            }
+            muestra la seleccion, if innecesario
+            ¬¬ Explicacion del Generador
+                for i // cuenta los individuos generados
+                    GN[] // limpia el individuo a utilizar
+                    for j //cuenta cada grupo de 4 genes
+                        Q //tiempo actual
+                        XO = Nanosegundos de Q / 16 // 16 porque 0000 - 1111 son 0 - 15 asi genera en un rango de 16
+                        a = unix de QX
+                        Imprime el numero de gen (i) el valor unix (A) & nanosegundos (XO)
+                        XN = (A * XO) % M //Generador congruencial multiplicativo (si no me equivoco)
+                        se imprime XN (numero entre 0 & 15)
+                        X := strconv.FormatInt(XN, 2)
+                        Convierte XN en un string de numero binario (por eso el 2, si fuera decimal seria 10)
+                        runes := strings.SplitN(X, "", 16) //esto no recuerdo bien como era
+                        corta el string X cada que aparece el caracter ("") y se hace (16) veces
+                        el for agrega el los datos de Runes (X separado) a runes hasta que se complete un gen de 4 (1010)
+                        un sleep para que el proximo gen no sea con los mismos nanoseconds & unix
+                        muestra runas
+                        agega el gen (1010) al individuo GN
+                    //sales del for j
+                agregas el individuo GN a Data
+                //sales del for if
+                imprimes la cantidad de individuos generados
+                regresas Data
+        //en ambos casos del switch Vias = data // array de individuos
+    myuserlist := Values(vias, i, Muta)
+    myuserlist almacena type OUT struct {
+                Evaluados        []DATA
+                Generacion       int
+                Id               int
+                }
+    t, err := template.ParseFiles("Data.html")
+    Se abre el html "Data.html"
+    err = t.Execute(w, myuserlist)
+    envia las variables myuserlist al html
+    imprime "Parsed" si todo esta bien
+    i++ //se suma la siguiente generacion, nunca se reinicia este numero, error mio
+    sleep 2 segundos para poder ver los datos impresos en el html antes de que se actualice
+
+
+    Values()
+        muestra el numero de generacion
+        for range dat 
+            muestra los individuos de dat //enviado como vias, recibido como dat
+        Resultados := make(map[int]int) //mapa para almacenar la evaluacion de cada gen, tambien sirve para limpiar el mapa
+        for W, z := range dat // guarda la poscicion del individuo en W y el individuo en Z (dat[W] == Z)
+            for len(Z) //recorre los genes del individuo Z
+                los if son para separar el gen en 4 genes otra vez, el for i=A i<B toma los valores en ese rango y los copia en un  GenZ
+                X, Q := evaluar(Gen, Resultados[W+1])
+                evalua el trozo de gen (1011) y envia el valor actual del individuo // X es el valor del trozo de gen (4 bit) & Q es el valor del individuo (16 bit)
+				Resultados[W+1] = Q
+                actualiza el valor del individuo en el key W+1 del mapa // w+1 porque el primer individuo es 0 asi se guarda en 1, estetica solamente
+                //no explicare evaluar porque es muy explicito
+        //sales de for len(Z) una vez que se evaluan todos los individuos
+        	CX := DATA{Z, Resultados[W+1]}
+            CX es una estructura (individuo(16 bits) & valor del individuo)
+            Data = append(Data, CX)
+            Data es un array para guardar todos los CX de la generacion
+            D = sumatoria de valores de generacion (usa el mapa resultados, omite la key (por eso el _) y almacena el valor en f)
+            imprime D
+            si D es mejor que la generacion anterior (-99 para la generacion 1)
+                se actualiza el mejor con D
+                QX almacena (Individuos = Data, Valor de la generacion = D, numero de la generacion = i)
+                EX:= Pares(Resultados) // ordena los individuos segun su valor
+                imprime el EX //(3 1 4 2)
+                vias = NewGen(EX, dat, Resultados)
+                vias se redefine con la nueva generacion cruzada
+                MT define si se muta o no
+                    si muta se llama Patch // el individuo i muta en su bit i
+                PD obtiene los individuos  de QX //esto para que no se borren si la sig generacion es un fracaso
+                regresa PD
+            si D es menor que la generacion anterior
+                Regresa PD // como no se sobreescribe regresa la generacion anterior enlugar de la actual
+
+            Pares()
+                ord []int almacena los datos del mapa
+                sort.ints(ord) ordena el array de menor a mayor
+                el for ordena las key segun aparece su valor en ord
+                Ex:
+                mapa 1:8 2:13 3:1 4:9 //individuo:valor
+                ord[] 8 13 1 9    ordenado 1 8 9 13
+                Orden[] 3 1 4 2
+                regresa orden
+
+            NewGen()
+            for i = len(data)-1 para recorrerlo en sentido contrario porque el array esta de menor a mayor
+                for j = len(data)-2 para comenzar desde el segundo mayor
+                    A corta el individuo Vias[data[i]-1][:8] (Data[i] esta con +1 por estetica, aqui eliminas ese +1 y no te dice "index out of range")
+                    //el [:8] indica que se queda con los primeros 8, el [8:] se queda con los ultimos 8
+                    lo miamo con B, C & D
+                    une C & B , A & D
+                    google guarda AD, si aun no estan todos los individuos agrega CB //el if es en caso de que pida individuos imares, pero el codigo solo te da pares, los numeros del DropDown
+                    regresa google cuando sea tan largo como los individuos oiginales
+                    en caso que recorra todos los individuos y no se complete la cantidad original (genere 3 y pedia 4)
+                        entra en panico y gita "BAD EXIT"
+
+
+el html recibe un struct OUT asi que los Whit son "si el campo X no esta vacio hacer esto"
+type OUT struct {
+	Evaluados        []DATA
+	Generacion       int
+	Id               int
+	PageRadioButtons []RadioButton
+	DropDownMenu     []DropDown
+}
+se envia 2 veces, una solo con los PageRadioButtons & DropDown y otra con Evaluados, Generacion & Id
+los range $# son para los array, es un for que acomoda cada valor de la estructura en su lugar y se ejecuta hasta que el array se vacie
+el end corta el range
+los $# son variables que almacenan cieto campo de la estructura
+el {{.}} es en caso de que la variable no sea array (como Id & Generacion) solo ubica su valor en donde este {{.}}
